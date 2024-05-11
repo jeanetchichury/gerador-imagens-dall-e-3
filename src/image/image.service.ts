@@ -1,26 +1,61 @@
-import { Injectable } from '@nestjs/common';
-import { CreateImageDto } from './dto/create-image.dto';
-import { UpdateImageDto } from './dto/update-image.dto';
-
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import { PrismaService } from 'src/prisma.service';
 @Injectable()
 export class ImageService {
-  create(createImageDto: CreateImageDto) {
-    return 'This action adds a new image';
+
+  constructor(
+    private prisma: PrismaService
+  ) {} 
+  
+  async create(dataInput: Prisma.ImageCreateInput) {
+    return await this.prisma.image.create({
+      data:{
+        url: dataInput.url,
+        ImageUser: dataInput.ImageUser || undefined        
+      }
+    });
   }
 
-  findAll() {
-    return `This action returns all image`;
+  async findAll() {
+    return await this.prisma.image.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} image`;
+  async findOne(id: string) {
+    const image = await this.prisma.image.findFirst({
+      where:{
+        id
+      }
+    });
+
+    if (!image) {
+      throw new BadRequestException('Paciente não encontrado.')
+    }
+
+    return image
   }
 
-  update(id: number, updateImageDto: UpdateImageDto) {
-    return `This action updates a #${id} image`;
+  async update(id: string, dataInput: Prisma.ImageUpdateInput) {
+      await this.findOne(id)
+
+    return await this.prisma.image.update({
+      where:{
+        id
+      },
+      data:{
+        url: dataInput.url,
+        ImageUser: dataInput.ImageUser || undefined        
+      }
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} image`;
+  async remove(id: string) {
+    await this.findOne(id)
+
+    return this.prisma.image.delete({
+      where:{
+        id
+      }
+    });
   }
 }

@@ -15,7 +15,7 @@ export class UserService {
         name: dataInput.name,
         password: dataInput.password,
         user: dataInput.user,
-        ImageUser: dataInput.ImageUser || null
+        ImageUser: dataInput.ImageUser || undefined
       }
     })
   }
