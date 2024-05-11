@@ -1,15 +1,15 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { ImageService } from './image.service';
-import { CreateImageDto } from './dto/create-image.dto';
-import { UpdateImageDto } from './dto/update-image.dto';
+import { Prisma } from '@prisma/client';
+
 
 @Controller('image')
 export class ImageController {
   constructor(private readonly imageService: ImageService) {}
 
   @Post()
-  create(@Body() createImageDto: CreateImageDto) {
-    return this.imageService.create(createImageDto);
+  create(@Body() dataInput: Prisma.ImageCreateInput) {
+    return this.imageService.create(dataInput);
   }
 
   @Get()
@@ -19,16 +19,16 @@ export class ImageController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.imageService.findOne(+id);
+    return this.imageService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateImageDto: UpdateImageDto) {
-    return this.imageService.update(+id, updateImageDto);
+  update(@Param('id') id: string, @Body() dataInput: Prisma.ImageUpdateInput) {
+    return this.imageService.update(id, dataInput);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.imageService.remove(+id);
+    return this.imageService.remove(id);
   }
 }
