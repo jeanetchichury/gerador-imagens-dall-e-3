@@ -14,17 +14,29 @@ datasource db {
 }
 
 model User {
-  id String @id @default(uuid())
-  name String
-  user String
-  password String
+  id        String      @id @default(uuid())
+  name      String
+  user      String
+  password  String
+  ImageUser ImageUser[]
 
   @@map("users")
 }
 
 model Image {
-  id String @id @default(uuid())
-  url String
+  id        String      @id @default(uuid())
+  url       String      
+  ImageUser ImageUser[]
 
   @@map("images")
+}
+
+model ImageUser {
+  id      String @id @default(uuid())
+  userId  String @map("user_id")
+  user    User   @relation(fields: [userId], references: [id])
+  imageId String
+  image   Image  @relation(fields: [imageId], references: [id])
+
+  @@map("images_users")
 }
