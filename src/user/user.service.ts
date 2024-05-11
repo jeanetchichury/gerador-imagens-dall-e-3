@@ -1,26 +1,68 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class UserService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+
+  constructor(
+    private prisma: PrismaService
+  ) {} 
+  
+  async create(dataInput: Prisma.UserCreateInput) {
+    return await this.prisma.user.create({
+      data:{
+        name: dataInput.name,
+        password: dataInput.password,
+        user: dataInput.user,
+        ImageUser: dataInput.ImageUser || null
+      }
+    })
   }
 
-  findAll() {
-    return `This action returns all user`;
+  async findAll() {
+    return await this.prisma.user.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: string) {
+    const user = await this.prisma.user.findFirst({
+      where:{
+        id
+      }
+    });
+
+    if (!user) {
+      throw new BadRequestException('Paciente não encontrado.')
+    }
+
+    return user
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: string, dataInput: Prisma.UserUpdateInput) {
+    
+    await this.findOne(id)
+
+    return await this.prisma.user.update({
+      where:{
+        id
+      },
+      data:{
+        name: dataInput.name,
+        password: dataInput.password,
+        user: dataInput.user,
+        ImageUser: dataInput.ImageUser || null
+      }
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: string) {
+    
+    await this.findOne(id)
+
+    return await this.prisma.user.delete({
+      where:{
+        id
+      }
+    });
   }
 }
