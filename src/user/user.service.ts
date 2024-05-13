@@ -38,6 +38,20 @@ export class UserService {
     return user
   }
 
+  async findUserByUser(user: string) {
+    const userLogin = await this.prisma.user.findFirst({
+      where:{
+        user
+      }
+    });
+
+    if (!userLogin) {
+      throw new BadRequestException('Usuário não encontrado.')
+    }
+
+    return userLogin
+  }
+
   async update(id: string, dataInput: Prisma.UserUpdateInput) {
     
     await this.findOne(id)
