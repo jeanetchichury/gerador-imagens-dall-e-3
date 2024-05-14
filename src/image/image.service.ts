@@ -1,17 +1,22 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
+import OpenAI from 'openai';
 import { PrismaService } from 'src/prisma.service';
+
 @Injectable()
 export class ImageService {
 
   constructor(
-    private prisma: PrismaService
+    private prisma: PrismaService,
   ) {} 
   
   async create(dataInput: Prisma.ImageCreateInput) {
+
+    const openaiImageCreation = await this.openaiCreateImage("A cute baby sea otter")[0]
+
     return await this.prisma.image.create({
       data:{
-        url: dataInput.url,
+        url: openaiImageCreation.url,
         ImageUser: dataInput.ImageUser || undefined        
       }
     });
@@ -57,5 +62,14 @@ export class ImageService {
         id
       }
     });
+  }
+
+  async openaiCreateImage(prompt) {
+    
+    const openai = new OpenAI()
+
+    const image = await openai.images.generate({ model: "dall-e-3", prompt, n:1 });
+  
+    return image.data;
   }
 }
