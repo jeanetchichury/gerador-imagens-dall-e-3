@@ -2,24 +2,33 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import OpenAI from 'openai';
 import { PrismaService } from 'src/prisma.service';
+import { OpenaiCreateImageDto } from './dto/openaiCreateImageDto';
+import { ImageUserService } from 'src/image-user/image-user.service';
 
 @Injectable()
 export class ImageService {
 
   constructor(
     private prisma: PrismaService,
+    private imageUserService: ImageUserService
   ) {} 
   
-  async create(dataInput: Prisma.ImageCreateInput) {
+  async create(dataInput: OpenaiCreateImageDto) {
 
-    const openaiImageCreation = await this.openaiCreateImage("A cute baby sea otter")[0]
+    const openaiImageCreation = await this.openaiCreateImage(dataInput.prompt)[0]
 
-    return await this.prisma.image.create({
+    const imageGenerated = await this.prisma.image.create({
       data:{
         url: openaiImageCreation.url,
-        ImageUser: dataInput.ImageUser || undefined        
       }
     });
+
+    const imageUser = await this.imageUserService.create({
+      imageId: imageGenerated.id,
+      userId: dataInput.userId
+    })
+    
+    return imageUser
   }
 
   async findAll() {
