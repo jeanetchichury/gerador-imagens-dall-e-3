@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { ImageService } from './image.service';
 import { Prisma } from '@prisma/client';
+import { OpenaiCreateImageDto } from './dto/openaiCreateImageDto';
 
 
 @Controller('image')
@@ -8,7 +9,7 @@ export class ImageController {
   constructor(private readonly imageService: ImageService) {}
 
   @Post()
-  create(@Body() dataInput: Prisma.ImageCreateInput) {
+  create(@Body() dataInput: OpenaiCreateImageDto) {
     return this.imageService.create(dataInput);
   }
 
